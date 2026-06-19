@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speech Synthesis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap" rel="stylesheet" type='text/css'>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://fav.farm/🔥" />
+</head>
+<body>
+
+    <div class="voiceinator">
+
+      <h1>The Voiceinator</h1>
+
+      <select name="voice" id="voices">
+        <option value="">Select A Voice</option>
+      </select>
+
+      <!-- Changes how fast or slow the voice talks -->
+      <label for="rate">Rate:</label>
+      <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+
+      <!-- Changes how high or low the voice talks -->
+      <label for="pitch">Pitch:</label>
+      <input name="pitch" type="range" min="0" max="2" step="0.1">
+
+      <textarea name="text">Hello! Write your text here ✨ </textarea>
+      <button id="stop">Stop!</button>
+      <button id="speak">Speak</button>
+
+    </div>
+
+<script>
+  const msg = new SpeechSynthesisUtterance();
+  let voices = [];
+  const voicesDropdown = document.querySelector('[name="voice"]');
+  const options = document.querySelectorAll('[type="range"], [name="text"]');
+  const speakButton = document.querySelector('#speak');
+  const stopButton = document.querySelector('#stop');
+  msg.text = document.querySelector('[name="text"]').value;
+
+  function populateVoices() {
+    voices = this.getVoices();
+    // loop voices as options 
+    const voiceOptions = voices
+      // filters voices to english
+      .filter(voice => voice.lang.includes('en'))
+      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+      .join('');
+    voicesDropdown.innerHTML = voiceOptions;
+  }
+
+  function setVoice() {
+    // loop over voices in the array and find the one where
+    // the name attribute is the same as the option currently selected 
+    msg.voice = voices.find(voice => voice.name === this.value);
+    toggle();
+  }
+
+  // restarts everytime a new option is selected
+  function toggle(startOver = true) {
+    speechSynthesis.cancel();
+    if(startOver){
+      speechSynthesis.speak(msg);
+    }
+  }
+
+  function setOption() {
+    // console.log(this.name, this.value);
+    msg[this.name] = this.value;
+    toggle();
+  }
+
+  speechSynthesis.addEventListener('voiceschanged', populateVoices);
+  voicesDropdown.addEventListener('change', setVoice);
+  options.forEach(option => option.addEventListener('change', setOption));
+  speakButton.addEventListener('click', toggle);
+  stopButton.addEventListener('click', () => toggle(false));
+
+</script>
+
+</body>
+</html>
